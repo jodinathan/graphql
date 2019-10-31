@@ -394,11 +394,11 @@ class GraphQL {
         collectFields(document, objectType, selectionSet, variableValues);
     var resultMap = <String, dynamic>{};
 
-    await Future.forEach(groupedFieldSet.keys, (responseKey) async {
+    await Future.forEach(groupedFieldSet.keys, (String responseKey) async {
       var fields = groupedFieldSet[responseKey];
 
-      await Future.forEach(fields, (field) async {
-        var fieldName =
+      await Future.forEach(fields, (SelectionContext field) async {
+        String fieldName =
             field.field.fieldName.alias?.name ?? field.field.fieldName.name;
         var responseValue;
 
@@ -640,7 +640,8 @@ class GraphQL {
       } on TypeError {
         throw GraphQLException.fromMessage(
             'Value of field "$fieldName" must be ${fieldType.valueType}, '
-                'got (${result?.runtimeType}) $result instead.');
+                'got (${result?.runtimeType}) $result instead. '
+                '(${fieldType.runtimeType})');
       }
     }
 
