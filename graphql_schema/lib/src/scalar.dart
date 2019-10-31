@@ -23,11 +23,7 @@ final GraphQLScalarType<int, int> graphQLInt = new _GraphQLNumType<int>(
 
 /// A signed double-precision floating-point value.
 final GraphQLScalarType<double, double> graphQLFloat =
-    new _GraphQLNumType<double>(
-        'Float',
-        'A signed double-precision floating-point value.',
-        (x) => x is double,
-        'a float');
+    new _GraphQLDoubleType();
 
 abstract class GraphQLScalarType<Value, Serialized>
     extends GraphQLType<Value, Serialized>
@@ -97,6 +93,43 @@ class _GraphQLNumType<T extends num> extends GraphQLScalarType<T, T> {
   GraphQLType<T, T> coerceToInputObject() => this;
 }
 
+class _GraphQLDoubleType extends GraphQLScalarType<double, double> {
+  @override
+  double serialize(double value) {
+    return value;
+  }
+
+  @override
+  String get name => 'Float';
+
+  @override
+  String get description => 'A float value.';
+
+  @override
+  ValidationResult<double> validate(String key, input) {
+    double dinp;
+
+    if (input != null) {
+      if (input is int) {
+        dinp = input.toDouble();
+      } else if (input is double) {
+        dinp = input;
+      } else {
+        return new ValidationResult._failure(
+            ['Expected "$key" to be double.']);
+      }
+    }
+
+    return new ValidationResult._ok(dinp);
+  }
+
+  @override
+  double deserialize(dynamic serialized) => serialized.toDouble();
+
+  @override
+  GraphQLType<double, double> coerceToInputObject() => this;
+}
+
 class _GraphQLStringType extends GraphQLScalarType<String, String> {
   final String name;
 
@@ -138,17 +171,22 @@ class _GraphQLDateType extends GraphQLScalarType<DateTime, String>
   DateTime deserialize(String serialized) => DateTime.parse(serialized);
 
   @override
-  ValidationResult<String> validate(String key, input) {
-    if (input != null && input is! String)
-      return new ValidationResult<String>._failure(
-          ['$key must be an ISO 8601-formatted date string.']);
-    else if (input == null) return new ValidationResult<String>._ok(input);
+  ValidationResult<String> validate(String key, dynamic input) {
+    if (input != null) {
+      if (input is DateTime) {
+        return ValidationResult<String>._ok(
+            (input as DateTime).toIso8601String());
+      } else if (input is! String) {
+        return ValidationResult<String>._failure(
+            ['$key must be an ISO 8601-formatted date string.']);
+      }
+    } else if (input == null) return new ValidationResult<String>._ok(input);
 
     try {
       DateTime.parse(input);
-      return new ValidationResult<String>._ok(input);
+      return ValidationResult<String>._ok(input);
     } on FormatException {
-      return new ValidationResult<String>._failure(
+      return ValidationResult<String>._failure(
           ['$key must be an ISO 8601-formatted date string.']);
     }
   }
