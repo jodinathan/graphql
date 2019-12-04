@@ -124,7 +124,7 @@ class _GraphQLDoubleType extends GraphQLScalarType<double, double> {
   }
 
   @override
-  double deserialize(dynamic serialized) => (serialized as num).toDouble();
+  double deserialize(dynamic serialized) => serialized.toDouble();
 
   @override
   GraphQLType<double, double> coerceToInputObject() => this;
@@ -175,17 +175,16 @@ class _GraphQLDateType extends GraphQLScalarType<DateTime, String>
     if (input != null) {
       if (input is DateTime) {
         return ValidationResult<String>._ok(
-            input.toIso8601String());
+            (input as DateTime).toIso8601String());
       } else if (input is! String) {
         return ValidationResult<String>._failure(
             ['$key must be an ISO 8601-formatted date string.']);
       }
-    } else if (input == null) return new ValidationResult<String>._ok(null);
+    } else if (input == null) return new ValidationResult<String>._ok(input);
 
     try {
-      var sinp = input as String;
-      DateTime.parse(sinp);
-      return ValidationResult<String>._ok(sinp);
+      DateTime.parse(input);
+      return ValidationResult<String>._ok(input);
     } on FormatException {
       return ValidationResult<String>._failure(
           ['$key must be an ISO 8601-formatted date string.']);
