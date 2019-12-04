@@ -106,7 +106,7 @@ class _GraphQLDoubleType extends GraphQLScalarType<double, double> {
   String get description => 'A float value.';
 
   @override
-  ValidationResult<double> validate(String key, input) {
+  ValidationResult<double> validate(String key, covariant dynamic input) {
     double dinp;
 
     if (input != null) {
