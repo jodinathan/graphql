@@ -124,7 +124,7 @@ class _GraphQLDoubleType extends GraphQLScalarType<double, double> {
   }
 
   @override
-  double deserialize(dynamic serialized) => serialized.toDouble();
+  double deserialize(dynamic serialized) => serialized?.toDouble();
 
   @override
   GraphQLType<double, double> coerceToInputObject() => this;
