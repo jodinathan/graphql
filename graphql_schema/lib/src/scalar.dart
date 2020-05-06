@@ -98,6 +98,9 @@ class _GraphQLDoubleType extends GraphQLScalarType<double, double> {
   double serialize(double value) {
     return value;
   }
+   
+  @override
+  double convert(value) => (value as num).toDouble();
 
   @override
   String get name => 'Float';
